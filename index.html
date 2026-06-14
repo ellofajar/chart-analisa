@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XAU/USD AI Analyzer</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='28'>📈</text></svg>" />
+  <link rel="stylesheet" href="Style.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-inner">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+              <polyline points="16 7 22 7 22 13"></polyline>
+            </svg>
+          </div>
+          <div>
+            <span class="logo-text">XAU/USD AI Analyzer</span>
+            <span class="logo-badge">BETA</span>
+          </div>
+        </div>
+        <div class="header-meta">
+          <span class="live-dot"></span>
+          <span class="live-label">Powered by Claude Vision</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="container">
+
+        <!-- LEFT PANEL -->
+        <div class="panel panel-left">
+
+          <!-- Upload zone -->
+          <div class="card upload-card" id="upload-card">
+            <div class="card-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload Chart
+            </div>
+            <div class="upload-zone" id="drop-zone">
+              <input type="file" id="file-input" accept="image/*" />
+              <div class="upload-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+              </div>
+              <div class="upload-text">Drop screenshot chart di sini</div>
+              <div class="upload-sub">atau <span class="upload-link">klik untuk pilih file</span></div>
+              <div class="upload-hint">PNG · JPG · WEBP · TradingView · MT4 · MT5</div>
+            </div>
+            <div class="preview-area" id="preview-area" style="display:none">
+              <img id="preview-img" src="" alt="Chart preview" />
+              <button class="preview-remove" id="btn-remove" title="Ganti chart">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Ganti
+              </button>
+            </div>
+          </div>
+
+          <!-- Settings -->
+          <div class="card">
+            <div class="card-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+              Pengaturan
+            </div>
+            <div class="form-grid">
+              <div class="form-field">
+                <label>Timeframe</label>
+                <select id="tf">
+                  <option value="M1">M1 — 1 Menit</option>
+                  <option value="M5" selected>M5 — 5 Menit</option>
+                  <option value="M15">M15 — 15 Menit</option>
+                  <option value="M30">M30 — 30 Menit</option>
+                  <option value="H1">H1 — 1 Jam</option>
+                  <option value="H4">H4 — 4 Jam</option>
+                  <option value="Daily">Daily</option>
+                  <option value="Weekly">Weekly</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label>Sesi Trading</label>
+                <select id="session">
+                  <option value="Asia">Asia (07:00–16:00 WIB)</option>
+                  <option value="London">London (14:00–23:00 WIB)</option>
+                  <option value="New York" selected>New York (19:00–04:00 WIB)</option>
+                  <option value="Overlap">Overlap London-NY</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label>Balance Akun ($)</label>
+                <input type="number" id="bal" value="10000" min="100" step="100" />
+              </div>
+              <div class="form-field">
+                <label>Risk per Trade (%)</label>
+                <input type="number" id="risk" value="2" min="0.1" max="10" step="0.1" />
+              </div>
+              <div class="form-field">
+                <label>API Key Anthropic</label>
+                <input type="password" id="api-key" placeholder="sk-ant-..." autocomplete="off" />
+                <div class="field-hint">Disimpan hanya di browser kamu</div>
+              </div>
+              <div class="form-field">
+                <label>Konteks tambahan <span class="optional">(opsional)</span></label>
+                <textarea id="note" rows="3" placeholder="Contoh: ada NFP hari ini, sebelumnya harga ditolak 3x di 4220..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analyze button -->
+          <button class="btn-analyze" id="btn-analyze" disabled onclick="runAnalysis()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Analisa Chart Sekarang
+          </button>
+
+          <div class="disclaimer">
+            ⚠️ Tools ini hanya untuk edukasi. Bukan rekomendasi investasi. Trading mengandung risiko tinggi.
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="panel panel-right">
+
+          <!-- Empty state -->
+          <div class="empty-state" id="empty-state">
+            <div class="empty-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M2 2l20 20"/><path d="M7 7H4a2 2 0 0 0-2 2v3m5.5-5.5L9 9m3-3l1.5-1.5M20 20v-3a2 2 0 0 0-2-2h-3m0 5l-1.5-1.5M9 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+            </div>
+            <div class="empty-title">Upload chart untuk memulai</div>
+            <div class="empty-sub">AI akan membaca chart-mu dan memberikan analisa Entry, SL, dan TP yang valid berdasarkan price action, indikator, dan struktur pasar yang terdeteksi.</div>
+            <div class="feature-list">
+              <div class="feature-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Baca indikator dari chart secara visual
+              </div>
+              <div class="feature-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Deteksi pola candlestick & struktur market
+              </div>
+              <div class="feature-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Entry · SL · TP dengan R:R ratio
+              </div>
+              <div class="feature-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Lot size sesuai risk management
+              </div>
+              <div class="feature-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Validitas sinyal dengan confidence score
+              </div>
+            </div>
+          </div>
+
+          <!-- Loading state -->
+          <div class="loading-state" id="loading-state" style="display:none">
+            <div class="loading-spinner"></div>
+            <div class="loading-title">AI sedang membaca chart...</div>
+            <div class="loading-steps" id="loading-steps">
+              <div class="loading-step active" id="step-1">Memuat gambar chart</div>
+              <div class="loading-step" id="step-2">Membaca indikator & price action</div>
+              <div class="loading-step" id="step-3">Mengidentifikasi S/R & struktur</div>
+              <div class="loading-step" id="step-4">Menghitung Entry · SL · TP optimal</div>
+              <div class="loading-step" id="step-5">Memvalidasi sinyal & risk management</div>
+            </div>
+          </div>
+
+          <!-- Result -->
+          <div id="result-area" style="display:none">
+
+            <!-- Direction banner -->
+            <div class="result-banner" id="result-banner">
+              <div class="banner-left">
+                <div class="banner-dir" id="banner-dir">BUY</div>
+                <div class="banner-setup" id="banner-setup">—</div>
+                <div class="banner-tf" id="banner-tf">M5</div>
+              </div>
+              <div class="banner-right">
+                <div class="conf-wrap">
+                  <div class="conf-label">AI Confidence</div>
+                  <div class="conf-value" id="conf-value">—</div>
+                </div>
+                <div class="conf-ring" id="conf-ring">
+                  <svg viewBox="0 0 36 36">
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke-width="3" class="ring-track"/>
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke-width="3" class="ring-fill" id="ring-fill"
+                      stroke-dasharray="0 100" stroke-dashoffset="25"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Key levels -->
+            <div class="levels-grid">
+              <div class="level-card level-entry">
+                <div class="level-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12l7-7 7 7"/></svg>
+                </div>
+                <div class="level-label">Entry</div>
+                <div class="level-price" id="lv-entry">—</div>
+                <div class="level-reason" id="lv-entry-r">—</div>
+              </div>
+              <div class="level-card level-sl">
+                <div class="level-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5"/><path d="M5 12l7 7 7-7"/></svg>
+                </div>
+                <div class="level-label">Stop Loss</div>
+                <div class="level-price" id="lv-sl">—</div>
+                <div class="level-reason" id="lv-sl-r">—</div>
+              </div>
+              <div class="level-card level-lot">
+                <div class="level-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                </div>
+                <div class="level-label">Lot size</div>
+                <div class="level-price" id="lv-lot">—</div>
+                <div class="level-reason" id="lv-lot-r">—</div>
+              </div>
+            </div>
+
+            <!-- TP Levels -->
+            <div class="section-title">Take Profit Levels</div>
+            <div class="tp-grid" id="tp-grid"></div>
+
+            <!-- Risk bar -->
+            <div class="risk-bar-card">
+              <div class="risk-bar-header">
+                <span>Potensi profit vs risiko</span>
+                <span id="risk-summary-text">—</span>
+              </div>
+              <div class="risk-bar-track">
+                <div class="risk-bar-sl" id="risk-bar-sl"></div>
+                <div class="risk-bar-tp1" id="risk-bar-tp1"></div>
+                <div class="risk-bar-tp2" id="risk-bar-tp2"></div>
+              </div>
+              <div class="risk-bar-legend">
+                <span class="legend-sl">■ SL</span>
+                <span class="legend-tp1">■ TP1</span>
+                <span class="legend-tp2">■ TP2</span>
+              </div>
+            </div>
+
+            <!-- Signal tags -->
+            <div class="section-title">Analisa Teknikal</div>
+            <div class="tags-section">
+              <div class="tags-row">
+                <div class="tags-label">Indikator terbaca</div>
+                <div class="tags-wrap" id="tags-ind"></div>
+              </div>
+              <div class="tags-row">
+                <div class="tags-label">Price action & struktur</div>
+                <div class="tags-wrap" id="tags-pa"></div>
+              </div>
+              <div class="tags-row">
+                <div class="tags-label">Sinyal konfirmasi</div>
+                <div class="tags-wrap" id="tags-sig"></div>
+              </div>
+            </div>
+
+            <!-- Trend -->
+            <div class="trend-card" id="trend-card">
+              <div class="trend-label">Analisa Trend</div>
+              <div class="trend-text" id="trend-text">—</div>
+            </div>
+
+            <!-- Warning -->
+            <div class="warning-card" id="warning-card" style="display:none">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <span id="warning-text">—</span>
+            </div>
+
+            <!-- Narasi -->
+            <div class="narasi-card">
+              <div class="narasi-label">Ringkasan Analisa</div>
+              <div class="narasi-text" id="narasi-text">—</div>
+            </div>
+
+            <!-- New analysis button -->
+            <button class="btn-new" onclick="resetAll()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.27"/></svg>
+              Analisa Chart Baru
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
