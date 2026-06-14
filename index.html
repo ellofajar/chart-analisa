@@ -3,188 +3,216 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>XAU/USD Trade Calculator</title>
+  <title>XAU/USD Market Analyzer</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='28'>📊</text></svg>" />
   <link rel="stylesheet" href="Style.css" />
 </head>
 <body>
   <div class="app">
 
-    <!-- HEADER -->
     <header class="header">
       <div class="header-inner">
         <div class="logo">
           <div class="logo-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="2" y="2" width="9" height="9" rx="1"/><rect x="13" y="2" width="9" height="9" rx="1"/>
-              <rect x="2" y="13" width="9" height="9" rx="1"/><rect x="13" y="13" width="9" height="9" rx="1"/>
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+              <polyline points="16 7 22 7 22 13"/>
             </svg>
           </div>
           <div>
-            <span class="logo-text">XAU/USD Trade Calculator</span>
+            <span class="logo-text">XAU/USD Market Analyzer</span>
             <span class="logo-badge">FREE</span>
           </div>
         </div>
         <div class="header-meta">
           <span class="live-dot"></span>
-          <span class="live-label">No API · No Limit</span>
+          <span class="live-label">Rule-Based Engine · No API</span>
         </div>
       </div>
     </header>
 
-    <!-- MAIN -->
     <main class="main">
       <div class="container">
 
-        <!-- LEFT PANEL: INPUT -->
+        <!-- LEFT: INPUT -->
         <div class="panel panel-left">
 
-          <!-- Direction -->
-          <div class="card">
-            <div class="card-label">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-              Arah Posisi
-            </div>
-            <div class="dir-toggle">
-              <button class="dir-btn active" data-dir="BUY">▲ BUY / LONG</button>
-              <button class="dir-btn" data-dir="SELL">▼ SELL / SHORT</button>
-            </div>
-          </div>
-
-          <!-- Price Levels -->
+          <!-- Harga & Struktur -->
           <div class="card">
             <div class="card-label">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              Level Harga
+              Harga & Struktur
             </div>
             <div class="form-grid">
               <div class="form-field full">
-                <label>Entry Price <span class="req">*</span></label>
-                <input type="number" id="entry" placeholder="contoh: 3320.500" step="0.001" />
-              </div>
-              <div class="form-field full">
-                <label>Stop Loss <span class="req">*</span></label>
-                <input type="number" id="sl" placeholder="contoh: 3310.000" step="0.001" />
+                <label>Current Price <span class="req">*</span></label>
+                <input type="number" id="price" placeholder="contoh: 3325.500" step="0.001" />
               </div>
               <div class="form-field">
-                <label>TP 1 <span class="req">*</span></label>
-                <input type="number" id="tp1" placeholder="3335.000" step="0.001" />
+                <label>Support Terdekat <span class="req">*</span></label>
+                <input type="number" id="support" placeholder="3310.000" step="0.001" />
               </div>
               <div class="form-field">
-                <label>TP 2 <span class="opt">(opsional)</span></label>
-                <input type="number" id="tp2" placeholder="3350.000" step="0.001" />
+                <label>Resistance Terdekat <span class="req">*</span></label>
+                <input type="number" id="resistance" placeholder="3340.000" step="0.001" />
               </div>
               <div class="form-field full">
-                <label>TP 3 <span class="opt">(opsional)</span></label>
-                <input type="number" id="tp3" placeholder="3370.000" step="0.001" />
+                <label>ATR <span class="opt">(opsional — untuk kalkulasi SL)</span></label>
+                <input type="number" id="atr" placeholder="contoh: 8.500" step="0.001" />
+                <div class="field-hint">Jika kosong, ATR dihitung otomatis dari range S/R</div>
               </div>
             </div>
           </div>
 
-          <!-- Risk Management -->
+          <!-- EMA -->
           <div class="card">
             <div class="card-label">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              Risk Management
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>
+              EMA (Trend Filter)
             </div>
             <div class="form-grid">
               <div class="form-field">
-                <label>Balance ($)</label>
-                <input type="number" id="balance" value="10000" step="100" min="1" />
+                <label>EMA 50</label>
+                <input type="number" id="ema50" placeholder="3318.000" step="0.001" />
               </div>
               <div class="form-field">
-                <label>Risk per Trade (%)</label>
-                <input type="number" id="risk" value="2" step="0.1" min="0.1" max="100" />
+                <label>EMA 200</label>
+                <input type="number" id="ema200" placeholder="3290.000" step="0.001" />
               </div>
-            </div>
-
-            <!-- Lot Mode -->
-            <div class="lot-mode-label">Lot Size</div>
-            <div class="lot-toggle">
-              <button id="mode-auto" class="lot-btn active">Auto (dari Risk%)</button>
-              <button id="mode-manual" class="lot-btn">Manual</button>
-            </div>
-            <div id="lot-manual-wrap" style="display:none;margin-top:10px">
-              <input type="number" id="lot-manual" placeholder="contoh: 0.10" step="0.01" min="0.01" />
             </div>
           </div>
 
-          <!-- Context -->
+          <!-- RSI -->
           <div class="card">
             <div class="card-label">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              Konteks
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h4l3-9 4 18 3-9h4"/></svg>
+              RSI
+            </div>
+            <div class="form-field">
+              <label>Nilai RSI (0–100)</label>
+              <input type="number" id="rsi" placeholder="contoh: 58" min="0" max="100" step="0.1" />
+              <div class="rsi-scale">
+                <span class="rsi-os">Oversold ≤30</span>
+                <span class="rsi-mid">Netral 30–70</span>
+                <span class="rsi-ob">Overbought ≥70</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MACD -->
+          <div class="card">
+            <div class="card-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 11l3 3 6-6"/></svg>
+              MACD
             </div>
             <div class="form-grid">
               <div class="form-field">
-                <label>Timeframe</label>
-                <select id="tf">
-                  <option value="M1">M1</option>
-                  <option value="M5" selected>M5</option>
-                  <option value="M15">M15</option>
-                  <option value="M30">M30</option>
-                  <option value="H1">H1</option>
-                  <option value="H4">H4</option>
-                  <option value="Daily">Daily</option>
-                  <option value="Weekly">Weekly</option>
-                </select>
+                <label>MACD Line</label>
+                <input type="number" id="macd-line" placeholder="contoh: 2.450" step="0.001" />
               </div>
               <div class="form-field">
-                <label>Sesi Trading</label>
-                <select id="session">
-                  <option value="Asia">Asia</option>
-                  <option value="London">London</option>
-                  <option value="New York" selected>New York</option>
-                  <option value="Overlap">Overlap</option>
+                <label>Signal Line</label>
+                <input type="number" id="macd-signal" placeholder="contoh: 1.820" step="0.001" />
+              </div>
+            </div>
+            <div class="field-hint" style="margin-top:6px">Positif = bullish · Negatif = bearish</div>
+          </div>
+
+          <!-- Price Action -->
+          <div class="card">
+            <div class="card-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="14" rx="1"/><rect x="10" y="8" width="4" height="9" rx="1"/><rect x="17" y="5" width="4" height="12" rx="1"/></svg>
+              Price Action & Struktur
+            </div>
+            <div class="form-grid">
+              <div class="form-field full">
+                <label>Pola Candlestick</label>
+                <select id="candle">
+                  <option value="">— Pilih pola —</option>
+                  <optgroup label="Bullish">
+                    <option value="Bullish Engulfing">Bullish Engulfing</option>
+                    <option value="Hammer">Hammer</option>
+                    <option value="Pin Bar Bullish">Pin Bar Bullish</option>
+                    <option value="Morning Star">Morning Star</option>
+                    <option value="Bullish Harami">Bullish Harami</option>
+                    <option value="Tweezer Bottom">Tweezer Bottom</option>
+                    <option value="Dragonfly Doji">Dragonfly Doji</option>
+                  </optgroup>
+                  <optgroup label="Bearish">
+                    <option value="Bearish Engulfing">Bearish Engulfing</option>
+                    <option value="Shooting Star">Shooting Star</option>
+                    <option value="Pin Bar Bearish">Pin Bar Bearish</option>
+                    <option value="Evening Star">Evening Star</option>
+                    <option value="Bearish Harami">Bearish Harami</option>
+                    <option value="Tweezer Top">Tweezer Top</option>
+                    <option value="Gravestone Doji">Gravestone Doji</option>
+                  </optgroup>
+                  <optgroup label="Netral">
+                    <option value="Doji">Doji</option>
+                    <option value="Spinning Top">Spinning Top</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="form-field full">
+                <label>Struktur Market</label>
+                <select id="struktur">
+                  <option value="">— Pilih struktur —</option>
+                  <optgroup label="Bullish">
+                    <option value="BOS Bullish">BOS Bullish (Break of Structure Up)</option>
+                    <option value="CHOCH Bullish">CHOCH Bullish (Change of Character)</option>
+                    <option value="Higher High">Higher High</option>
+                    <option value="Higher Low">Higher Low</option>
+                  </optgroup>
+                  <optgroup label="Bearish">
+                    <option value="BOS Bearish">BOS Bearish (Break of Structure Down)</option>
+                    <option value="CHOCH Bearish">CHOCH Bearish (Change of Character)</option>
+                    <option value="Lower High">Lower High</option>
+                    <option value="Lower Low">Lower Low</option>
+                  </optgroup>
                 </select>
               </div>
             </div>
           </div>
 
-          <!-- Calculate Button -->
-          <button class="btn-calculate" id="btn-calculate">
+          <button class="btn-calculate" id="btn-analyze">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/>
-              <line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/>
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
             </svg>
-            Hitung Sekarang
+            Analisa Sekarang
           </button>
 
           <div class="disclaimer">
-            ⚠️ Kalkulasi untuk referensi edukasi. Bukan rekomendasi investasi. Trading mengandung risiko tinggi.
+            ⚠️ Tools ini untuk edukasi. Bukan rekomendasi investasi. Trading mengandung risiko tinggi.
           </div>
         </div>
 
-        <!-- RIGHT PANEL: OUTPUT -->
+        <!-- RIGHT: OUTPUT -->
         <div class="panel panel-right">
-
-          <!-- Empty state -->
           <div class="empty-state" id="empty-state">
             <div class="empty-icon">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                <rect x="4" y="2" width="16" height="20" rx="2"/>
-                <line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/>
-                <line x1="8" y1="14" x2="12" y2="14"/>
+                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                <polyline points="16 7 22 7 22 13"/>
               </svg>
             </div>
-            <div class="empty-title">Isi input untuk mulai kalkulasi</div>
-            <div class="empty-sub">Masukkan Entry, SL, dan minimal TP1 di panel kiri. Hasil kalkulasi lengkap akan muncul di sini — lot size, R:R ratio, estimasi profit/loss, dan visualisasi risk.</div>
+            <div class="empty-title">Input kondisi market untuk analisa</div>
+            <div class="empty-sub">Masukkan data yang kamu baca dari chart — harga, indikator, pola candle. Sistem akan menentukan arah posisi, entry, SL, dan TP secara otomatis.</div>
             <div class="feature-list">
               <div class="feature-item">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                Kalkulasi lot size otomatis dari Risk%
+                Engine otomatis baca EMA, RSI, MACD
               </div>
               <div class="feature-item">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                R:R ratio untuk TP1, TP2, TP3
+                Tentukan BUY / SELL / WAIT dari sinyal
               </div>
               <div class="feature-item">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                Estimasi profit & loss dalam dollar
+                Kalkulasi Entry, SL, TP dari ATR & S/R
               </div>
               <div class="feature-item">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                Visualisasi risk bar proporsional
+                R:R ratio & confidence score
               </div>
               <div class="feature-item">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
@@ -192,15 +220,12 @@
               </div>
             </div>
           </div>
-
-          <!-- Output -->
           <div id="output" style="display:none"></div>
-
         </div>
+
       </div>
     </main>
   </div>
-
   <script src="app.js"></script>
 </body>
 </html>

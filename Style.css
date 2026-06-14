@@ -847,3 +847,68 @@ body {
   margin-bottom: 8px;
   margin-top: 4px;
 }
+
+/* === RSI SCALE === */
+.rsi-scale { display:flex; justify-content:space-between; margin-top:6px; font-size:10px; }
+.rsi-os  { color: var(--green); }
+.rsi-mid { color: var(--text-muted); }
+.rsi-ob  { color: var(--red); }
+
+/* === SIGNAL SUMMARY === */
+.signal-summary {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.signal-label { font-size: 10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.8px; margin-bottom:8px; }
+.signal-tags  { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+.sig-count {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.sig-count.buy  { background:var(--green-bg); border:1px solid var(--green-border); color:var(--green); }
+.sig-count.sell { background:var(--red-bg);   border:1px solid var(--red-border);   color:var(--red);   }
+.signal-reasons { display:flex; flex-direction:column; gap:5px; }
+.signal-item { font-size:12px; color:var(--text-secondary); padding:4px 0; border-bottom:1px solid var(--border); }
+.signal-item:last-child { border-bottom:none; }
+
+/* === WAIT CARD === */
+.wait-card {
+  display:flex; gap:10px; align-items:flex-start;
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  color: var(--amber);
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+/* === WARNING CARD === */
+.warning-card {
+  display:flex; gap:10px; align-items:flex-start;
+  background: var(--red-bg);
+  border: 1px solid var(--red-border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  color: var(--red);
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+/* === CONFIDENCE RING === */
+.conf-ring { width:48px; height:48px; }
+.conf-ring svg { width:100%; height:100%; transform:rotate(-90deg); }
+.ring-track { stroke: rgba(255,255,255,.08); }
+.ring-fill  { transition: stroke-dasharray .5s ease; }
+.conf-wrap  { text-align:right; }
+.conf-label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.6px; }
+.conf-value { font-size:20px; font-weight:800; }
+
+/* === DIR WAIT === */
+.result-banner.dir-wait { border-color: var(--amber-border); background: var(--amber-bg); }
+.dir-wait .banner-dir   { color: var(--amber); }
