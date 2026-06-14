@@ -53,19 +53,19 @@ function showPreview(src) {
 /* ===================== API KEY STORAGE ===================== */
 
 const apiKeyInput = document.getElementById('api-key');
-const stored = localStorage.getItem('xau_api_key');
+const stored = localStorage.getItem('xau_gemini_key');
 if (stored) apiKeyInput.value = stored;
 apiKeyInput.addEventListener('change', () => {
   const key = apiKeyInput.value.trim();
   if (key) {
-    localStorage.setItem('xau_api_key', key);
+    localStorage.setItem('xau_gemini_key', key);
   } else {
-    localStorage.removeItem('xau_api_key');
+    localStorage.removeItem('xau_gemini_key');
   }
 });
 
 function getApiKey() {
-  return apiKeyInput.value.trim() || localStorage.getItem('xau_api_key') || '';
+  return apiKeyInput.value.trim() || localStorage.getItem('xau_gemini_key') || '';
 }
 
 /* ===================== LOADING STEPS ===================== */
@@ -306,11 +306,7 @@ async function runAnalysis() {
 
   const apiKey = getApiKey();
   if (!apiKey) {
-    alert('Masukkan API Key Anthropic terlebih dahulu di kolom pengaturan.');
-    return;
-  }
-  if (!apiKey.startsWith('sk-ant-')) {
-    alert('API Key tidak valid. Harus diawali dengan sk-ant-');
+    alert('Masukkan API Key Google Gemini terlebih dahulu di kolom pengaturan.\nDapatkan gratis di: https://aistudio.google.com/apikey');
     return;
   }
 
@@ -334,41 +330,49 @@ async function runAnalysis() {
   startLoadingSteps();
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const GEMINI_MODEL = 'gemini-2.0-flash';
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+
+    const resp = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2000,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: imgMime, data: imgBase64 } },
-            { type: 'text', text: buildPrompt(tf, bal, risk, session, note) }
+        contents: [{
+          parts: [
+            {
+              inline_data: {
+                mime_type: imgMime,
+                data: imgBase64
+              }
+            },
+            { text: buildPrompt(tf, bal, risk, session, note) }
           ]
-        }]
+        }],
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 2000,
+        }
       })
     });
 
     if (!resp.ok) {
       const errData = await resp.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `HTTP ${resp.status}`);
+      const errMsg = errData.error?.message || `HTTP ${resp.status}`;
+      throw new Error(errMsg);
     }
 
     const data = await resp.json();
-    const raw = data.content.map(i => i.text || '').join('');
+
+    // Gemini response structure
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    if (!raw) throw new Error('Respons kosong dari Gemini. Coba ulangi analisa.');
+
     const clean = raw.replace(/```json|```/g, '').trim();
 
     let d;
     try {
       d = JSON.parse(clean);
     } catch (parseErr) {
-      // Try extracting JSON from response
       const match = clean.match(/\{[\s\S]*\}/);
       if (match) d = JSON.parse(match[0]);
       else throw new Error('Response bukan JSON valid. Coba ulangi analisa.');
@@ -380,9 +384,10 @@ async function runAnalysis() {
   } catch (err) {
     stopLoadingSteps();
     let msg = err.message;
-    if (msg.includes('401')) msg = 'API Key tidak valid atau expired.';
+    if (msg.includes('API_KEY_INVALID') || msg.includes('400')) msg = 'API Key Gemini tidak valid. Cek kembali key kamu.';
+    if (msg.includes('403')) msg = 'API Key tidak punya akses. Pastikan Gemini API sudah diaktifkan.';
     if (msg.includes('429')) msg = 'Rate limit tercapai. Tunggu sebentar lalu coba lagi.';
-    if (msg.includes('529') || msg.includes('overloaded')) msg = 'Server Anthropic sedang sibuk. Coba beberapa menit lagi.';
+    if (msg.includes('503') || msg.includes('overloaded')) msg = 'Server Gemini sedang sibuk. Coba beberapa menit lagi.';
     showError(msg);
   } finally {
     btn.disabled = false;
